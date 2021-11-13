@@ -52,7 +52,7 @@ func sendResponse(chatID int64) error {
 	// Create the request body struct
 	reqBody := &sendMessageReqBody{
 		ChatID: chatID,
-		Text:   "Nunca mas compro queso pategras la veronica",
+		Text:   "Nunca mas compro queso pategras la veronica. Muerte a Tito.",
 	}
 	// Create the JSON body from the struct
 	reqBytes, err := json.Marshal(reqBody)

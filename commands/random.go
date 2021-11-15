@@ -2,13 +2,12 @@ package Commands
 
 import (
 	"database/sql"
+	"jbelbo/guidoBot/telegram"
 	"log"
 	"os"
-    "jbelbo/guidoBot/telegram"
 )
 
-
-func RandomStuff(responseBody *Telegram.MessageResponse ) error {
+func RandomStuff(responseBody *Telegram.MessageResponse) error {
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatalf("Error opening database: %q", err)
@@ -26,10 +25,9 @@ func RandomStuff(responseBody *Telegram.MessageResponse ) error {
 		var err = results.Scan(&responseBody.Text)
 		if err != nil {
 			log.Fatal("Error while reading from row")
-        }
-        return nil
+		}
+		return nil
 	}
 
-    return nil
+	return nil
 }
-

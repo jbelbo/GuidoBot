@@ -18,22 +18,19 @@ func SendResponse(chatID int64, message *MessageResponse) error {
 		return err
 	}
 
-
-    //HEROKU
-    heroku:= true//os.Getenv("HEROKU")
-    if heroku == true {
-        apiKey := os.Getenv("API_KEY")
-        res, err := http.Post("https://api.telegram.org/bot"+apiKey+"/sendMessage", "application/json", bytes.NewBuffer(responseBytes))
-        if err != nil {
-            return err
-        }
-        if res.StatusCode != http.StatusOK {
-            return errors.New("unexpected status" + res.Status)
-        }
-    } else {
-        fmt.Println("Response is ", message)
-    }
-    return nil;
+	//HEROKU
+	heroku := true //os.Getenv("HEROKU")
+	if heroku == true {
+		apiKey := os.Getenv("API_KEY")
+		res, err := http.Post("https://api.telegram.org/bot"+apiKey+"/sendMessage", "application/json", bytes.NewBuffer(responseBytes))
+		if err != nil {
+			return err
+		}
+		if res.StatusCode != http.StatusOK {
+			return errors.New("unexpected status" + res.Status)
+		}
+	} else {
+		fmt.Println("Response is ", message)
+	}
+	return nil
 }
-
-

@@ -1,6 +1,6 @@
 package Telegram
 
- // https://core.telegram.org/bots/api#update
+// https://core.telegram.org/bots/api#update
 type WebhookReqBody struct {
 	Message struct {
 		Text string `json:"text"`
@@ -15,5 +15,3 @@ type MessageResponse struct {
 	ChatID int64  `json:"chat_id"`
 	Text   string `json:"text"`
 }
-
-

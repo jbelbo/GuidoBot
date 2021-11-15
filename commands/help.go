@@ -1,13 +1,11 @@
 package Commands
 
 import (
-    "jbelbo/guidoBot/telegram"
+	"jbelbo/guidoBot/telegram"
 )
 
+func Help(responseBody *Telegram.MessageResponse) error {
 
-func Help(responseBody *Telegram.MessageResponse ) error {
-
-    responseBody.Text = "/help: Not implemented."
-    return nil
+	responseBody.Text = "/help: Not implemented."
+	return nil
 }
-

@@ -1,16 +1,15 @@
-package Handler 
+package Handler
 
 import (
 	"encoding/json"
 	"fmt"
 	_ "github.com/lib/pq"
+	"jbelbo/guidoBot/commands"
+	"jbelbo/guidoBot/telegram"
 	"log"
 	"net/http"
 	"strings"
-    "jbelbo/guidoBot/telegram"
-    "jbelbo/guidoBot/commands"
 )
-
 
 // Decode and Parse
 func Run(res http.ResponseWriter, req *http.Request) {
@@ -22,7 +21,6 @@ func Run(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-
 	if err := parseRequest(body); err != nil {
 		fmt.Println("error in sending reply:", err)
 		return
@@ -30,7 +28,6 @@ func Run(res http.ResponseWriter, req *http.Request) {
 
 	fmt.Println("reply sent")
 }
-
 
 //
 // Available commands::
@@ -48,55 +45,50 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 		Text:   "",
 	}
 
-    //Process hola command
-    if strings.HasPrefix(strings.ToLower(body.Message.Text), "hola") {
-        var err = Commands.RandomStuff(&responseBody)
-        if err != nil {
-            log.Fatal("Error in hola command")
-        }
+	//Process hola command
+	if strings.HasPrefix(strings.ToLower(body.Message.Text), "hola") {
+		var err = Commands.RandomStuff(&responseBody)
+		if err != nil {
+			log.Fatal("Error in hola command")
+		}
 	}
 
-
-    //Process /random command
-    if strings.HasPrefix(strings.ToLower(body.Message.Text), "/random") {
-        var err = Commands.RandomStuff(&responseBody)
-        if err != nil {
-            log.Fatal("Error in /random command")
-        }
+	//Process /random command
+	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/random") {
+		var err = Commands.RandomStuff(&responseBody)
+		if err != nil {
+			log.Fatal("Error in /random command")
+		}
 	}
 
-    //Process /tokens command
-    if strings.HasPrefix(strings.ToLower(body.Message.Text), "/tokens") {
-        var err = Commands.ListTokens(&responseBody)
-        if err != nil {
-            log.Fatal("Error in /tokens command")
-        }
+	//Process /tokens command
+	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/tokens") {
+		var err = Commands.ListTokens(&responseBody)
+		if err != nil {
+			log.Fatal("Error in /tokens command")
+		}
 	}
 
-
-    //Process /add command
-    if strings.HasPrefix(strings.ToLower(body.Message.Text), "/add") {
-        var err = Commands.Add(&responseBody)
-        if err != nil {
-            log.Fatal("Error in /add command")
-        }
+	//Process /add command
+	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/add") {
+		var err = Commands.Add(&responseBody)
+		if err != nil {
+			log.Fatal("Error in /add command")
+		}
 
 	}
 
-
-    //Process /help command
-    if strings.HasPrefix(strings.ToLower(body.Message.Text), "/help") {
-        var err = Commands.Help(&responseBody)
-        if err != nil {
-            log.Fatal("Error in /help command")
-        }
+	//Process /help command
+	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/help") {
+		var err = Commands.Help(&responseBody)
+		if err != nil {
+			log.Fatal("Error in /help command")
+		}
 	}
 
-    if responseBody.Text == "" {
-        return nil
-    }
+	if responseBody.Text == "" {
+		return nil
+	}
 
-    return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
+	return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
 }
-
-

@@ -71,7 +71,7 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 
 	//Process /add command
 	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/add") {
-		var err = Commands.Add(&responseBody)
+		var err = Commands.Add(body, &responseBody)
 		if err != nil {
 			log.Fatal("Error in /add command")
 		}

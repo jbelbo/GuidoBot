@@ -23,6 +23,14 @@ type webhookReqBody struct {
 	} `json:"message"`
 }
 
+// https://core.telegram.org/bots/api#sendmessage
+type messageResponse struct {
+	ChatID int64  `json:"chat_id"`
+	Text   string `json:"text"`
+}
+
+
+// Decode and Parse
 func Handler(res http.ResponseWriter, req *http.Request) {
 	// First, decode the JSON response body
 	body := &webhookReqBody{}
@@ -32,11 +40,8 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !strings.Contains(strings.ToLower(body.Message.Text), "hola") {
-		return
-	}
 
-	if err := sendResponse(body.Message.Chat.ID); err != nil {
+	if err := parseRequest(body); err != nil {
 		fmt.Println("error in sending reply:", err)
 		return
 	}
@@ -44,65 +49,121 @@ func Handler(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("reply sent")
 }
 
-// https://core.telegram.org/bots/api#sendmessage
-type messageResponse struct {
-	ChatID int64  `json:"chat_id"`
-	Text   string `json:"text"`
-}
 
-func sendResponse(chatID int64) error {
+// Random command
+//
+// TODO: randomize message selection
+func randomStuff(responseBody *messageResponse ) error {
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatalf("Error opening database: %q", err)
 	}
 	defer db.Close()
 
-	// ToDo randomize message selection
-	results, err := db.Query("SELECT message FROM phrase")
+	results, err := db.Query("SELECT message FROM phrase LIMIT 1")
 	if err != nil {
 		log.Fatal("Error while querying DB")
 	}
 
 	defer results.Close()
 
-	// Create the request body struct
-	responseBody := &messageResponse{
-		ChatID: chatID,
-		Text:   "",
-	}
-
 	for results.Next() {
 		var err = results.Scan(&responseBody.Text)
 		if err != nil {
 			log.Fatal("Error while reading from row")
-		}
+        }
+        return nil
 	}
 
+    return nil
+}
+
+
+
+//
+// Available commands::
+//
+//    /help
+//    /add
+//    /random
+//    hola = /random
+//
+func parseRequest(body *webhookReqBody) error {
+
+	// Create the request body struct
+	responseBody := messageResponse{
+		ChatID: body.Message.Chat.ID,
+		Text:   "",
+	}
+
+    //Process hola command
+    if strings.HasPrefix(strings.ToLower(body.Message.Text), "hola") {
+        var err = randomStuff(&responseBody)
+        if err != nil {
+            log.Fatal("Error retriving random stuff")
+        }
+	}
+
+
+    //Process /random command
+    if strings.HasPrefix(strings.ToLower(body.Message.Text), "/random") {
+        var err = randomStuff(&responseBody)
+        if err != nil {
+            log.Fatal("Error retriving random stuff")
+        }
+	}
+
+    //Process /help command
+    if strings.HasPrefix(strings.ToLower(body.Message.Text), "/add") {
+        responseBody.Text = "/add: Not implemented."
+	}
+
+
+    //Process /help command
+    if strings.HasPrefix(strings.ToLower(body.Message.Text), "/help") {
+        responseBody.Text = "/help: Not implemented."
+	}
+
+    if responseBody.Text == "" {
+        return nil
+    }
+
+    return sendResponse(body.Message.Chat.ID, &responseBody)
+}
+
+
+// Send a response according to the environment.
+func sendResponse(chatID int64, message *messageResponse) error {
 
 	// Create the JSON body from the struct
-	responseBytes, err := json.Marshal(responseBody)
+	responseBytes, err := json.Marshal(message)
 	if err != nil {
 		return err
 	}
 
-	// ToDo move hardcoded token to secrets / env variables
-	apiKey := os.Getenv("API_KEY")
-	res, err := http.Post("https://api.telegram.org/bot"+apiKey+"/sendMessage", "application/json", bytes.NewBuffer(responseBytes))
-	if err != nil {
-		return err
-	}
-	if res.StatusCode != http.StatusOK {
-		return errors.New("unexpected status" + res.Status)
-	}
 
-	return nil
+    //HEROKU
+    if heroku:= os.Getenv("HEROKU"); heroku == "true" {
+        apiKey := os.Getenv("API_KEY")
+        res, err := http.Post("https://api.telegram.org/bot"+apiKey+"/sendMessage", "application/json", bytes.NewBuffer(responseBytes))
+        if err != nil {
+            return err
+        }
+        if res.StatusCode != http.StatusOK {
+            return errors.New("unexpected status" + res.Status)
+        }
+    } else {
+        fmt.Println("Response is ", message)
+    }
+    return nil;
 }
 
 func main() {
-	port := os.Getenv("PORT")
 
-	if port == "" {
+    port := os.Getenv("PORT");
+    if port == "" {
 		log.Fatal("$PORT must be set")
-	}
+    }
+
 	http.ListenAndServe(":"+port, http.HandlerFunc(Handler))
 }

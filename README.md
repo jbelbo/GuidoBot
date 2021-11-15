@@ -3,8 +3,10 @@ A simple Telegram bot
 
 # Installation
 
-export DATABASE_URL= ......
-export PORT=4000
+.env
+PORT=
+DATABASE_URL=
+HEROKU=
 
 
 # Usage

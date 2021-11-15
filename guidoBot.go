@@ -143,7 +143,8 @@ func sendResponse(chatID int64, message *messageResponse) error {
 
 
     //HEROKU
-    if heroku:= os.Getenv("HEROKU"); heroku == true {
+    heroku:= true //os.Getenv("HEROKU")
+    if heroku == true {
         apiKey := os.Getenv("API_KEY")
         res, err := http.Post("https://api.telegram.org/bot"+apiKey+"/sendMessage", "application/json", bytes.NewBuffer(responseBytes))
         if err != nil {

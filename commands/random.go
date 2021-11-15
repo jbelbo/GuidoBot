@@ -14,7 +14,7 @@ func RandomStuff(responseBody *Telegram.MessageResponse) error {
 	}
 	defer db.Close()
 
-	results, err := db.Query("SELECT message FROM phrase LIMIT 1")
+	results, err := db.Query("SELECT message FROM phrase ORDER BY random() LIMIT 1")
 	if err != nil {
 		log.Fatal("Error while querying DB")
 	}

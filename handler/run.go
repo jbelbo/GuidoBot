@@ -78,6 +78,15 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 
 	}
 
+    //Process /status command
+	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/status") {
+		var err = Commands.Status(body, &responseBody)
+		if err != nil {
+			log.Fatal("Error in /status command")
+		}
+
+	}
+
 	//Process /help command
 	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/help") {
 		var err = Commands.Help(&responseBody)

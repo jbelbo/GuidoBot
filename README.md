@@ -1,25 +1,35 @@
 # GuidoBot
 A simple Telegram bot
 
+## Installation
 
-# Installation
-
-### .env
-```
-PORT=
-DATABASE_URL=
-HEROKU=
+```bash
+cp .env.example .env
 ```
 
-# Usage
-
+## Usage
+```bash
 go run .
+```
 
+## Webhook request example
 ```bash
 curl --location --request GET 'localhost:4000' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "message": {"text": "hola", "chat" : { "id" : 42 }}
+    "message": {
+        "text": "pepe",
+        "chat": {
+            "id": 42
+        },
+        "entities": [
+            {
+                "type": "mention"
+            },
+            {
+                "type": "bold"
+            }
+        ]
+    }
 }'
 ```
-

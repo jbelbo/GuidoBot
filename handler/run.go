@@ -45,6 +45,14 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 		Text:   "",
 	}
 
+	// Process mention (@bot_name)
+	if botHasBeenMentioned(body.Message.Entities) {
+		var err = Commands.RandomStuff(&responseBody)
+		if err != nil {
+			log.Fatal("Error in mention command")
+		}
+	}
+
 	//Process hola command
 	if strings.HasPrefix(strings.ToLower(body.Message.Text), "hola") {
 		var err = Commands.RandomStuff(&responseBody)
@@ -78,7 +86,7 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 
 	}
 
-    //Process /status command
+	//Process /status command
 	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/status") {
 		var err = Commands.Status(body, &responseBody)
 		if err != nil {
@@ -87,7 +95,7 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 
 	}
 
-    //Process /send command
+	//Process /send command
 	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/send") {
 		var err = Commands.Send(body, &responseBody)
 		if err != nil {
@@ -109,4 +117,13 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 	}
 
 	return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
+}
+
+func botHasBeenMentioned(entities []Telegram.MessageEntity) bool {
+	for _, entity := range entities {
+		if entity.Type == "mention" {
+			return true
+		}
+	}
+	return false
 }

@@ -87,6 +87,15 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 
 	}
 
+    //Process /send command
+	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/send") {
+		var err = Commands.Send(body, &responseBody)
+		if err != nil {
+			log.Fatal("Error in /send command")
+		}
+
+	}
+
 	//Process /help command
 	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/help") {
 		var err = Commands.Help(&responseBody)

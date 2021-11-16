@@ -7,7 +7,17 @@ type WebhookReqBody struct {
 		Chat struct {
 			ID int64 `json:"id"`
 		} `json:"chat"`
+		From struct {
+			ID       int64  `json:"id"`
+			Username string `json:"username"`
+		}
+		Entities []MessageEntity `json:"entities"`
 	} `json:"message"`
+}
+
+// https://core.telegram.org/bots/api#messageentity
+type MessageEntity struct {
+	Type string `json:"type"`
 }
 
 // https://core.telegram.org/bots/api#sendmessage

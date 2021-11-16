@@ -3,11 +3,12 @@ A simple Telegram bot
 
 # Installation
 
-.env
+### .env
+```
 PORT=
 DATABASE_URL=
 HEROKU=
-
+```
 
 # Usage
 

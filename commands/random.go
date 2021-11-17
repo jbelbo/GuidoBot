@@ -2,17 +2,22 @@ package Commands
 
 import (
 	"context"
-	"database/sql"
 	Telegram "jbelbo/guidoBot/telegram"
 	"log"
 	"os"
 	"time"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+type Fields struct {
+    ID          primitive.ObjectID `bson:"_id,omitempty"`
+    Text       string             `bson:"txt,omitempty"`
+}
 
 func RandomStuff(responseBody *Telegram.MessageResponse) error {
 
@@ -27,33 +32,19 @@ func RandomStuff(responseBody *Telegram.MessageResponse) error {
 
 	collection := client.Database("messages").Collection("originals")
 
-	res, err := collection.InsertOne(context.Background(), bson.M{"hello": "world"})
-	if err != nil {
-		return err
-	}
-	id := res.InsertedID.(primitive.ObjectID).String()
+    pipeline := []bson.D{bson.D{{"$sample", bson.D{{"size", 1}}}}}
+    showInfoCursor, err := collection.Aggregate(ctx, pipeline)
+    if err != nil {
+        panic(err)
+    }
+    var showsWithInfo []Fields
+    if err = showInfoCursor.All(ctx, &showsWithInfo); err != nil {
+        panic(err)
+    }
+    fmt.Println(showsWithInfo[0].Text)
 
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
-	if err != nil {
-		log.Fatalf("Error opening database: %q", err)
-	}
-	defer db.Close()
-
-	results, err := db.Query("SELECT message FROM phrase ORDER BY random() LIMIT 1")
-	if err != nil {
-		log.Fatal("Error while querying DB")
-	}
-
-	defer results.Close()
-
-	for results.Next() {
-		var err = results.Scan(&responseBody.Text)
-		responseBody.Text = responseBody.Text + " " + id
-		if err != nil {
-			log.Fatal("Error while reading from row")
-		}
-		return nil
-	}
+    responseBody.Text = showsWithInfo[0].Text
 
 	return nil
+
 }

@@ -2,15 +2,15 @@ package Commands
 
 import (
 	"context"
-	"jbelbo/guidoBot/telegram"
-	"log"
-	"os"
-	"time"
-	"strings"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"jbelbo/guidoBot/telegram"
+	"log"
+	"os"
+	"strings"
+	"time"
 )
 
 func Add(body *Telegram.WebhookReqBody, responseBody *Telegram.MessageResponse) error {
@@ -32,7 +32,6 @@ func Add(body *Telegram.WebhookReqBody, responseBody *Telegram.MessageResponse) 
 		return err
 	}
 	id := res.InsertedID.(primitive.ObjectID).String()
-
 
 	responseBody.Text = "/add: " + id
 	return nil

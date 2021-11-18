@@ -8,7 +8,7 @@ import (
 	"jbelbo/guidoBot/telegram"
 	"log"
 	"net/http"
-	"strings"
+	"regexp"
 )
 
 // Decode and Parse
@@ -29,23 +29,14 @@ func Run(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("reply sent")
 }
 
-//
-// Available commands::
-//
-//    /help
-//    /add
-//    /random
-//    hola = /random
-//
+// Available commands:: /help /add /random /tokens /send /status @user_mention
 func parseRequest(body *Telegram.WebhookReqBody) error {
 
-	// Create the request body struct
 	responseBody := Telegram.MessageResponse{
 		ChatID: body.Message.Chat.ID,
 		Text:   "",
 	}
 
-	// Process mention (@bot_name)
 	if botHasBeenMentioned(body.Message.Entities) {
 		var err = Commands.RandomStuff(&responseBody)
 		if err != nil {
@@ -53,63 +44,29 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 		}
 	}
 
-	//Process hola command
-	if strings.HasPrefix(strings.ToLower(body.Message.Text), "hola") {
-		var err = Commands.RandomStuff(&responseBody)
-		if err != nil {
-			log.Fatal("Error in hola command")
-		}
+	regex := regexp.MustCompile("^\\/[a-zA-Z]*")
+	command := regex.FindString(body.Message.Text)
+	var err error
+
+	switch command {
+	case "/random":
+		err = Commands.RandomStuff(&responseBody)
+	case "/tokens":
+		err = Commands.ListTokens(body, &responseBody)
+	case "/add":
+		err = Commands.Add(body, &responseBody)
+	case "/status":
+		err = Commands.Status(body, &responseBody)
+	case "/send":
+		err = Commands.Help(&responseBody)
+	case "/help":
+		err = Commands.Help(&responseBody)
+	default:
+		err = nil
 	}
 
-	//Process /random command
-	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/random") {
-		var err = Commands.RandomStuff(&responseBody)
-		if err != nil {
-			log.Fatal("Error in /random command")
-		}
-	}
-
-	//Process /tokens command
-	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/tokens") {
-		var err = Commands.ListTokens(body, &responseBody)
-		if err != nil {
-			log.Fatal("Error in /tokens command")
-		}
-	}
-
-	//Process /add command
-	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/add") {
-		var err = Commands.Add(body, &responseBody)
-		if err != nil {
-			log.Fatal("Error in /add command")
-		}
-
-	}
-
-	//Process /status command
-	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/status") {
-		var err = Commands.Status(body, &responseBody)
-		if err != nil {
-			log.Fatal("Error in /status command")
-		}
-
-	}
-
-	//Process /send command
-	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/send") {
-		var err = Commands.Send(body, &responseBody)
-		if err != nil {
-			log.Fatal("Error in /send command")
-		}
-
-	}
-
-	//Process /help command
-	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/help") {
-		var err = Commands.Help(&responseBody)
-		if err != nil {
-			log.Fatal("Error in /help command")
-		}
+	if err != nil {
+		log.Fatal("Error in command")
 	}
 
 	if responseBody.Text == "" {
@@ -119,6 +76,8 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 	return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
 }
 
+// ToDo it actually recognizes if any user has been mentioned, need to fix this
+//botHasBeenMentioned this method recognizes when the bot has been mentioned
 func botHasBeenMentioned(entities []Telegram.MessageEntity) bool {
 	for _, entity := range entities {
 		if entity.Type == "mention" {

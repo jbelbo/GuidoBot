@@ -2,11 +2,11 @@ package Commands
 
 import (
 	"context"
+	"fmt"
 	Telegram "jbelbo/guidoBot/telegram"
 	"log"
 	"os"
 	"time"
-	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,8 +15,8 @@ import (
 )
 
 type Fields struct {
-    ID          primitive.ObjectID `bson:"_id,omitempty"`
-    Text       string             `bson:"txt,omitempty"`
+	ID   primitive.ObjectID `bson:"_id,omitempty"`
+	Text string             `bson:"txt,omitempty"`
 }
 
 func RandomStuff(responseBody *Telegram.MessageResponse) error {
@@ -32,18 +32,18 @@ func RandomStuff(responseBody *Telegram.MessageResponse) error {
 
 	collection := client.Database("messages").Collection("originals")
 
-    pipeline := []bson.D{bson.D{{"$sample", bson.D{{"size", 1}}}}}
-    showInfoCursor, err := collection.Aggregate(ctx, pipeline)
-    if err != nil {
-        panic(err)
-    }
-    var showsWithInfo []Fields
-    if err = showInfoCursor.All(ctx, &showsWithInfo); err != nil {
-        panic(err)
-    }
-    fmt.Println(showsWithInfo[0].Text)
+	pipeline := []bson.D{bson.D{{"$sample", bson.D{{"size", 1}}}}}
+	showInfoCursor, err := collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		panic(err)
+	}
+	var showsWithInfo []Fields
+	if err = showInfoCursor.All(ctx, &showsWithInfo); err != nil {
+		panic(err)
+	}
+	fmt.Println(showsWithInfo[0].Text)
 
-    responseBody.Text = showsWithInfo[0].Text
+	responseBody.Text = showsWithInfo[0].Text
 
 	return nil
 

@@ -71,7 +71,7 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 
 	//Process /tokens command
 	if strings.HasPrefix(strings.ToLower(body.Message.Text), "/tokens") {
-		var err = Commands.ListTokens(&responseBody)
+		var err = Commands.ListTokens(body, &responseBody)
 		if err != nil {
 			log.Fatal("Error in /tokens command")
 		}

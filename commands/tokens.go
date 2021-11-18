@@ -52,7 +52,7 @@ func formatListedTokens(responseBody *Telegram.MessageResponse, tokens []Token, 
 
 	responseBody.Text = "= Detalles: \n"
 	for _, token := range requestedTokens {
-		responseBody.Text = "*" + responseBody.Text + token.Name + "(" + token.Symbol + ")* :\n"
+		responseBody.Text = responseBody.Text + token.Name + "(" + token.Symbol + ") :\n"
 		responseBody.Text = responseBody.Text + "    - Price: " + fmt.Sprintf("%f", token.Price) + "\n"
 		responseBody.Text = responseBody.Text + "    - ATL: " + fmt.Sprintf("%f", token.Atl) + " - ATH: " + fmt.Sprintf("%f", token.Ath) + "\n"
 		responseBody.Text = responseBody.Text + "    - VOL: " + fmt.Sprintf("%d", token.Vol) + "\n"
@@ -65,7 +65,7 @@ func ListTokens(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.Message
 
 	//https://www.sohamkamani.com/golang/json/
 	//https://dev.to/billylkc/parse-json-api-response-in-go-10ng
-	params := strings.TrimSpace(strings.TrimPrefix(reqBody.Message.Text, "/tokens "))
+	params := strings.TrimSpace(strings.TrimPrefix(reqBody.Message.Text, "/tokens"))
 
 	resp, err := http.Get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd")
 	if err != nil {

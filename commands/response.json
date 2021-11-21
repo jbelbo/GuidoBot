@@ -1,0 +1,44 @@
+{
+  "coord": {
+    "lon": -60.6393,
+    "lat": -32.9468
+  },
+  "weather": [
+    {
+      "id": 800,
+      "main": "Clear",
+      "description": "clear sky",
+      "icon": "01d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 34.6,
+    "feels_like": 33.4,
+    "temp_min": 32.95,
+    "temp_max": 36.43,
+    "pressure": 1008,
+    "humidity": 26
+  },
+  "visibility": 10000,
+  "wind": {
+    "speed": 0.45,
+    "deg": 262,
+    "gust": 4.02
+  },
+  "clouds": {
+    "all": 0
+  },
+  "dt": 1637524410,
+  "sys": {
+    "type": 2,
+    "id": 2000719,
+    "country": "AR",
+    "sunrise": 1637484586,
+    "sunset": 1637534854
+  },
+  "timezone": -10800,
+  "id": 3838583,
+  "name": "Rosario",
+  "cod": 200
+}

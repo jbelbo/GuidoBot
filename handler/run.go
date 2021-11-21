@@ -61,6 +61,8 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 		err = Commands.Send(body, &responseBody)
 	case "/help":
 		err = Commands.Help(&responseBody)
+	case "/weather":
+		err = Commands.GetWeather(body, &responseBody)
 	default:
 		err = nil
 	}

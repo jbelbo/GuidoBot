@@ -37,6 +37,15 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 		Text:   "",
 	}
 
+    if botReconizeKeyword(body) {
+		var err = Commands.RandomStuffWithKeyword(body, &responseBody)
+		if err != nil {
+			log.Fatal("Error in random quote with keyword command")
+		} else {
+	        return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
+        }
+	}
+
 	if botHasBeenMentioned(body.Message.Entities) {
 		var err = Commands.RandomStuff(&responseBody)
 		if err != nil {
@@ -63,6 +72,8 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 		err = Commands.Help(&responseBody)
 	case "/weather":
 		err = Commands.GetWeather(body, &responseBody)
+	case "/joke":
+		err = Commands.GetJoke(body, &responseBody)
 	default:
 		err = nil
 	}
@@ -87,4 +98,12 @@ func botHasBeenMentioned(entities []Telegram.MessageEntity) bool {
 		}
 	}
 	return false
+}
+
+
+func botReconizeKeyword(body *Telegram.WebhookReqBody) bool {
+
+    matched, _ := regexp.MatchString(`crypto|ETH|BTC`, body.Message.Text)
+
+    return matched
 }

@@ -48,3 +48,33 @@ func RandomStuff(responseBody *Telegram.MessageResponse) error {
 	return nil
 
 }
+
+func RandomStuffWithKeyword(body *Telegram.WebhookReqBody, responseBody *Telegram.MessageResponse) error {
+
+	clientOptions := options.Client().
+		ApplyURI(os.Getenv("MONGO_URL"))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	collection := client.Database("messages").Collection("originals")
+
+	pipeline := []bson.D{bson.D{{"$match", bson.D{{"txt", bson.M{"$regex": "crypto|BTC|ETH|XTZ|Tezos", "$options": "im"}  } }}}, bson.D{{"$sample", bson.D{{"size", 1}}}} }
+	showInfoCursor, err := collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		panic(err)
+	}
+	var showsWithInfo []Fields
+	if err = showInfoCursor.All(ctx, &showsWithInfo); err != nil {
+		panic(err)
+	}
+	fmt.Println(showsWithInfo[0].Text)
+
+	responseBody.Text = showsWithInfo[0].Text
+
+	return nil
+
+}

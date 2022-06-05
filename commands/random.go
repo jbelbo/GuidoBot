@@ -62,7 +62,7 @@ func RandomStuffWithKeyword(body *Telegram.WebhookReqBody, responseBody *Telegra
 
 	collection := client.Database("messages").Collection("originals")
 
-	pipeline := []bson.D{bson.D{{"$match", bson.D{{"txt", bson.M{"$regex": "crypto|BTC|ETH|XTZ|Tezos", "$options": "im"}  } }}}, bson.D{{"$sample", bson.D{{"size", 1}}}} }
+	pipeline := []bson.D{bson.D{{"$match", bson.D{{"txt", bson.M{"$regex": "crypto|BTC|ETH|XTZ|Tezos", "$options": "im"}}}}}, bson.D{{"$sample", bson.D{{"size", 1}}}}}
 	showInfoCursor, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		panic(err)

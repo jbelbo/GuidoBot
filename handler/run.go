@@ -37,16 +37,16 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 		Text:   "",
 	}
 
-    if botReconizeKeyword(body) {
+	if botReconizeKeyword(body) {
 		var err = Commands.RandomStuffWithKeyword(body, &responseBody)
 		if err != nil {
 			log.Fatal("Error in random quote with keyword command")
 		} else {
-	        return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
-        }
+			return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
+		}
 	}
 
-	if botHasBeenMentioned(body.Message.Entities) {
+	if messageContainsMention(body.Message.Entities) {
 		var err = Commands.RandomStuff(&responseBody)
 		if err != nil {
 			log.Fatal("Error in mention command")
@@ -89,21 +89,19 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 	return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
 }
 
-// ToDo it actually recognizes if any user has been mentioned, need to fix this
-//botHasBeenMentioned this method recognizes when the bot has been mentioned
-func botHasBeenMentioned(entities []Telegram.MessageEntity) bool {
+//messageContainsMention this method recognizes when a user has been mentioned
+func messageContainsMention(entities []Telegram.MessageEntity) bool {
 	for _, entity := range entities {
-		if entity.Type == "mention" {
+		if entity.Type == "mention" || entity.Type == "text_mention" {
 			return true
 		}
 	}
 	return false
 }
 
-
 func botReconizeKeyword(body *Telegram.WebhookReqBody) bool {
 
-    matched, _ := regexp.MatchString(`crypto|ETH|BTC`, body.Message.Text)
+	matched, _ := regexp.MatchString(`crypto|ETH|BTC`, body.Message.Text)
 
-    return matched
+	return matched
 }

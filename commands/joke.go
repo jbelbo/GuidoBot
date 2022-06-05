@@ -10,7 +10,7 @@ import (
 )
 
 type JokeResponse struct {
-	Url string `json:"url"`
+	Url   string `json:"url"`
 	Value string `json:"value"`
 }
 

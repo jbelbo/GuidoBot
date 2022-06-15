@@ -6,6 +6,7 @@ import (
 	Telegram "jbelbo/guidoBot/telegram"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -41,8 +42,8 @@ func MatchesForTeam(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.Mes
 	filter := bson.D{
 		{"$or",
 			bson.A{
-				bson.D{{"HomeTeam", team}},
-				bson.D{{"AwayTeam", team}},
+				bson.D{{"HomeTeam", bson.D{{"$regex", regexp.QuoteMeta(team)}, {"$options", "i"}}}},
+				bson.D{{"AwayTeam", bson.D{{"$regex", regexp.QuoteMeta(team)}, {"$options", "i"}}}},
 			},
 		},
 	}
@@ -59,7 +60,6 @@ func MatchesForTeam(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.Mes
 	var out strings.Builder
 	for _, result := range results {
 		out.WriteString(fmt.Sprintln(result))
-		fmt.Println(result)
 	}
 	responseBody.Text = out.String()
 

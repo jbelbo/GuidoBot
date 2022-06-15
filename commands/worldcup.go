@@ -52,14 +52,14 @@ func MatchesForTeam(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.Mes
 	if err != nil {
 		panic(err)
 	}
-	var results []bson.D
+	var results []Match
 	if err = cursor.All(ctx, &results); err != nil {
 		panic(err)
 	}
 
 	var out strings.Builder
 	for _, result := range results {
-		out.WriteString(fmt.Sprintln(result))
+		out.WriteString(fmt.Sprintf("On %s: %s vs. %s in %s\n", result.DateUtc, result.HomeTeam, result.AwayTeam, result.Location))
 	}
 	responseBody.Text = out.String()
 

@@ -42,7 +42,6 @@ func LookupFlag(country string) string {
 	}
 
 	collection := client.Database("worldcup").Collection("flags")
-	fmt.Print(country)
 	filter := bson.D{{"name", bson.D{{"$regex", regexp.QuoteMeta(country)}, {"$options", "i"}}}}
 
 	var result Flag
@@ -50,7 +49,7 @@ func LookupFlag(country string) string {
 		return ""
 	}
 
-	return result.Emoji
+	return fmt.Sprintf(" %s", result.Emoji)
 }
 
 func MatchesForTeam(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.MessageResponse) error {
@@ -85,7 +84,7 @@ func MatchesForTeam(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.Mes
 
 	var out strings.Builder
 	for _, result := range results {
-		out.WriteString(fmt.Sprintf("On %s: %s(%s) vs. %s(%s) in %s\n", result.DateUtc, result.HomeTeam, LookupFlag(result.HomeTeam), result.AwayTeam, LookupFlag(result.AwayTeam), result.Location))
+		out.WriteString(fmt.Sprintf("On %s: %s%s vs. %s%s in %s\n", result.DateUtc, result.HomeTeam, LookupFlag(result.HomeTeam), result.AwayTeam, LookupFlag(result.AwayTeam), result.Location))
 	}
 	responseBody.Text = out.String()
 

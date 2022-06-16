@@ -31,7 +31,7 @@ type Match struct {
 func TeamWithEmoji(team string) string {
 	Emoji.Init()
 
-	emoji, err := Emoji.Search(team)
+	emoji, err := Emoji.SearchInCategory("Flags", team)
 	if err != nil {
 		return team
 	}

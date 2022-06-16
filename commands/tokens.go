@@ -3,11 +3,14 @@ package Commands
 import (
 	"encoding/json"
 	"fmt"
-	_ "github.com/lib/pq"
 	"io/ioutil"
-	"jbelbo/guidoBot/telegram"
+	Telegram "jbelbo/guidoBot/telegram"
 	"net/http"
 	"strings"
+
+	"golang.org/x/exp/slices"
+
+	_ "github.com/lib/pq"
 )
 
 type Token struct {
@@ -18,16 +21,6 @@ type Token struct {
 	Ath    float32
 	Atl    float32
 	Vol    int64 `json:"total_volume"`
-}
-
-func contains(s []string, str string) bool {
-	for _, v := range s {
-		if v == str {
-			return true
-		}
-	}
-
-	return false
 }
 
 func formatAllTokens(responseBody *Telegram.MessageResponse, tokens []Token) {
@@ -42,7 +35,7 @@ func formatListedTokens(responseBody *Telegram.MessageResponse, tokens []Token, 
 	var requestedTokens []Token
 
 	for _, value := range tokens {
-		if contains(coins, strings.ToUpper(value.Symbol)) {
+		if slices.Contains(coins, strings.ToUpper(value.Symbol)) {
 			requestedTokens = append(requestedTokens, value)
 		}
 	}

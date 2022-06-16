@@ -3,6 +3,7 @@ package Commands
 import (
 	"context"
 	"fmt"
+	Emoji "jbelbo/guidoBot/internal/emoji"
 	Telegram "jbelbo/guidoBot/telegram"
 	"log"
 	"os"
@@ -27,29 +28,14 @@ type Match struct {
 	Group       string             `bson:"Group,omitempty"`
 }
 
-type Flag struct {
-	Name  string `bson:"name,omitempty"`
-	Emoji string `bson:"emoji,omitempty"`
-}
+func TeamWithEmoji(team string) string {
+	Emoji.Init()
 
-func LookupFlag(country string) string {
-	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_URL"))
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	client, err := mongo.Connect(ctx, clientOptions)
+	emoji, err := Emoji.Search(team)
 	if err != nil {
-		log.Fatal(err)
+		return team
 	}
-
-	collection := client.Database("worldcup").Collection("flags")
-	filter := bson.D{{"name", bson.D{{"$regex", regexp.QuoteMeta(country)}, {"$options", "i"}}}}
-
-	var result Flag
-	if err = collection.FindOne(ctx, filter).Decode(&result); err != nil {
-		return ""
-	}
-
-	return fmt.Sprintf(" %s", result.Emoji)
+	return fmt.Sprintf("%s %s", team, emoji)
 }
 
 func MatchesForTeam(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.MessageResponse) error {
@@ -84,7 +70,8 @@ func MatchesForTeam(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.Mes
 
 	var out strings.Builder
 	for _, result := range results {
-		out.WriteString(fmt.Sprintf("On %s: %s%s vs. %s%s in %s\n", result.DateUtc, result.HomeTeam, LookupFlag(result.HomeTeam), result.AwayTeam, LookupFlag(result.AwayTeam), result.Location))
+
+		out.WriteString(fmt.Sprintf("On %s: %s vs. %s in %s\n", result.DateUtc, TeamWithEmoji(result.HomeTeam), TeamWithEmoji(result.AwayTeam), result.Location))
 	}
 	responseBody.Text = out.String()
 

@@ -38,8 +38,10 @@ func Init() error {
 func Search(word string) (string, error) {
 	re, _ := regexp.Compile("(?i)" + regexp.QuoteMeta(word))
 	for _, emoji := range emojis {
+		if re.MatchString(emoji.Description) {
+			return emoji.Emoji, nil
+		}
 		for _, alias := range emoji.Aliases {
-
 			if re.MatchString(alias) {
 				return emoji.Emoji, nil
 			}
@@ -60,8 +62,10 @@ func SearchInCategory(category string, word string) (string, error) {
 		if emoji.Category != category {
 			continue
 		}
+		if re.MatchString(emoji.Description) {
+			return emoji.Emoji, nil
+		}
 		for _, alias := range emoji.Aliases {
-
 			if re.MatchString(alias) {
 				return emoji.Emoji, nil
 			}

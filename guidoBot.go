@@ -17,6 +17,6 @@ func main() {
 	if port == "" {
 		log.Fatal("$PORT must be set")
 	}
-
-	http.ListenAndServe(":"+port, http.HandlerFunc(Handler.Run))
+	http.HandleFunc("/"+os.Getenv("TOKEN"), Handler.Run)
+	http.ListenAndServe(":"+port, nil)
 }

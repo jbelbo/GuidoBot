@@ -39,7 +39,7 @@ func formatListedTokens(responseBody *Telegram.MessageResponse, tokens []Token, 
 			requestedTokens = append(requestedTokens, value)
 		}
 	}
-	if contains(coins, "POO") {
+	if slices.Contains(coins, "POO") {
 		requestedTokens = append(requestedTokens, Token{Name: "GuidoCoin", Symbol: "POO", Price: 0, Atl: 0, Ath:0, Vol: 0})
 	}
 	if len(requestedTokens) == 0 {

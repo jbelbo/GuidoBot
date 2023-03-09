@@ -59,6 +59,8 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 			err = Commands.GetJoke(body, &responseBody)
 		case "/matches":
 			err = Commands.MatchesForTeam(body, &responseBody)
+		case "/chatgpt":
+			err = Commands.ChatGPT(body, &responseBody)
 		default:
 			err = nil
 		}

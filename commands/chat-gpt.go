@@ -3,6 +3,7 @@ package Commands
 import (
 	"context"
 	"os"
+	"strconv"
 	"strings"
 
 	openai "jbelbo/guidoBot/internal/openai"
@@ -13,11 +14,14 @@ func ChatGPT(body *Telegram.WebhookReqBody, responseBody *Telegram.MessageRespon
 	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
 
 	ctx := context.Background()
-	model := "davinci"
+	model := os.Getenv("OPENAI_API_MODEL")
 	prompt := strings.TrimPrefix(body.Message.Text, "/chatgpt ")
-	maxTokens := 5
+	maxTokens, err := strconv.ParseInt(os.Getenv("OPENAI_API_MAX_TOKENS"), 10, 64)
+	if err != nil {
+		return err
+	}
 
-	text, err := client.GenerateText(ctx, model, prompt, maxTokens)
+	text, err := client.GenerateText(ctx, model, prompt, int(maxTokens))
 	if err != nil {
 		return err
 	}

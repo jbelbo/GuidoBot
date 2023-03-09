@@ -14,34 +14,22 @@ go run .
 
 ## Webhook request example
 ```bash
-curl --location --request GET 'localhost:4000' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "message": {
-        "text": "pepe",
-        "chat": {
-            "id": 42
-        },
-        "entities": [
-            {
-                "type": "mention"
+    curl --location --request GET 'localhost:<PORT>/<TOKEN>' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "message": {
+            "text": "pepe",
+            "chat": {
+                "id": 42
             },
-            {
-                "type": "bold"
-            }
-        ]
-    }
-}'
-```
-
-
-curl --location --request GET 'localhost:4000' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "message": {
-        "text": "/tokens",
-        "chat": {
-            "id": 42
+            "entities": [
+                {
+                    "type": "mention"
+                },
+                {
+                    "type": "bold"
+                }
+            ]
         }
-    }
-}'
+    }'
+```

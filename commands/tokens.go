@@ -3,10 +3,12 @@ package Commands
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	Telegram "jbelbo/guidoBot/telegram"
 	"net/http"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	"golang.org/x/exp/slices"
 
@@ -40,7 +42,7 @@ func formatListedTokens(responseBody *Telegram.MessageResponse, tokens []Token, 
 		}
 	}
 	if slices.Contains(coins, "POO") {
-		requestedTokens = append(requestedTokens, Token{Name: "GuidoCoin", Symbol: "POO", Price: 0, Atl: 0, Ath:0, Vol: 0})
+		requestedTokens = append(requestedTokens, Token{Name: "GuidoCoin", Symbol: "POO", Price: 0, Atl: 0, Ath: 0, Vol: 0})
 	}
 	if len(requestedTokens) == 0 {
 		return
@@ -56,25 +58,23 @@ func formatListedTokens(responseBody *Telegram.MessageResponse, tokens []Token, 
 }
 
 // List Token from API
-//
 func ListTokens(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.MessageResponse) error {
-
 	//https://www.sohamkamani.com/golang/json/
 	//https://dev.to/billylkc/parse-json-api-response-in-go-10ng
 	params := strings.TrimSpace(strings.TrimPrefix(reqBody.Message.Text, "/tokens"))
 
 	resp, err := http.Get("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd")
 	if err != nil {
-		fmt.Println("No response from request")
+		log.Error().Err(err).Msg("No response from request")
+
+		return err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body) // response body is []byte
-	//fmt.Println(string(body))
 
+	body, err := io.ReadAll(resp.Body)
 	if err == nil {
 		var tokens []Token
 		json.Unmarshal([]byte(body), &tokens)
-		//fmt.Printf("Tokens : %+v", tokens)
 
 		if len(params) == 0 {
 			formatAllTokens(responseBody, tokens)

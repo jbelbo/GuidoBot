@@ -4,26 +4,31 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/rs/zerolog/log"
 )
 
-// Send a response according to the environment.
+// Sends a response according to the environment.
 func SendResponse(chatID int64, message *MessageResponse) error {
-
-	// Create the JSON body from the struct
 	responseBytes, err := json.Marshal(message)
 	if err != nil {
+		log.Error().Err(err).Msg("Error while marshalling response")
+
 		return err
 	}
 
-	//HEROKU
 	heroku := os.Getenv("HEROKU")
-	envHeroku, _ := strconv.ParseBool(heroku)
+	envHeroku, err := strconv.ParseBool(heroku)
+	if err != nil {
+		log.Error().Err(err).Msg("Error while parsing HEROKU env var")
 
-	if envHeroku == true {
+		return err
+	}
+
+	if envHeroku {
 		apiKey := os.Getenv("API_KEY")
 		res, err := http.Post("https://api.telegram.org/bot"+apiKey+"/sendMessage", "application/json", bytes.NewBuffer(responseBytes))
 		if err != nil {
@@ -33,7 +38,7 @@ func SendResponse(chatID int64, message *MessageResponse) error {
 			return errors.New("unexpected status" + res.Status)
 		}
 	} else {
-		fmt.Println("Response is ", message)
+		log.Debug().Msg("Response is: " + message.Text)
 	}
 	return nil
 }

@@ -2,39 +2,57 @@ package Handler
 
 import (
 	"encoding/json"
-	"fmt"
-	_ "github.com/lib/pq"
-	"jbelbo/guidoBot/commands"
-	"jbelbo/guidoBot/telegram"
-	"log"
+	Commands "jbelbo/guidoBot/commands"
+	Telegram "jbelbo/guidoBot/telegram"
 	"net/http"
 	"regexp"
+
+	"github.com/rs/zerolog/log"
+
+	_ "github.com/lib/pq"
 )
 
 func Run(res http.ResponseWriter, req *http.Request) {
 	body := &Telegram.WebhookReqBody{}
 
 	if err := json.NewDecoder(req.Body).Decode(body); err != nil {
-		fmt.Println("Could not decode request body", err)
+		http.Error(res, "Could not decode request body", http.StatusBadRequest)
+
 		return
 	}
 
 	if err := parseRequest(body); err != nil {
-		fmt.Println("Error while sending reply: ", err)
+		http.Error(res, "Could not process request", http.StatusInternalServerError)
+
 		return
 	}
 
-	fmt.Println("Reply sent")
+	log.Debug().Msg("Reply sent")
 }
 
-// Available commands:: /help /add /random /tokens /send /status @user_mention
+/*
+/ Available commands:
+/   /random
+/   /tokens
+/   /add
+/   /status
+/   /send
+/   /help
+/   /weather
+/   /joke
+/   /matches
+/   crypto keyword
+/   user_mention
+*/
 func parseRequest(body *Telegram.WebhookReqBody) error {
 	responseBody := Telegram.MessageResponse{
 		ChatID: body.Message.Chat.ID,
 		Text:   "",
 	}
 
-	regex := regexp.MustCompile("^\\/[a-zA-Z]*")
+	// TODO: Refactor this to use a map of commands
+
+	regex := regexp.MustCompile(`^\/[a-zA-Z]*`)
 	command := regex.FindString(body.Message.Text)
 
 	if command != "" {
@@ -64,7 +82,7 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 		}
 
 		if err != nil {
-			log.Fatal("Error while processing command")
+			log.Error().Err(err).Msg("Error while processing command")
 		}
 
 		return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
@@ -73,7 +91,7 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 	if recognizeKeyword(body) {
 		var err = Commands.RandomStuffWithKeyword(body, &responseBody)
 		if err != nil {
-			log.Fatal("Error in random quote with keyword command")
+			log.Error().Err(err).Msg("Error in random quote with keyword command")
 		}
 
 		return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
@@ -82,7 +100,7 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 	if messageContainsMention(body.Message.Entities) {
 		var err = Commands.RandomStuff(&responseBody)
 		if err != nil {
-			log.Fatal("Error in mention command")
+			log.Error().Err(err).Msg("Error in random quote command")
 		}
 
 		return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
@@ -95,7 +113,7 @@ func parseRequest(body *Telegram.WebhookReqBody) error {
 	return Telegram.SendResponse(body.Message.Chat.ID, &responseBody)
 }
 
-//messageContainsMention this method recognizes when a user has been mentioned
+// messageContainsMention this method recognizes when a user has been mentioned
 func messageContainsMention(entities []Telegram.MessageEntity) bool {
 	for _, entity := range entities {
 		if entity.Type == "mention" || entity.Type == "text_mention" {

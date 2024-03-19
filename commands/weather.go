@@ -3,7 +3,7 @@ package Commands
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	Telegram "jbelbo/guidoBot/telegram"
 	"log"
 	"net/http"
@@ -74,7 +74,6 @@ type WeatherResponse struct {
 }
 
 func GetWeather(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.MessageResponse) error {
-
 	city := strings.TrimSpace(strings.TrimPrefix(reqBody.Message.Text, "/weather"))
 	apiKey := os.Getenv("OPEN_WEATHER_API_KEY")
 
@@ -87,7 +86,7 @@ func GetWeather(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.Message
 		fmt.Println("No response from request")
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
 		log.Fatal("Error while reading Open Weather response")
@@ -109,5 +108,6 @@ func formatResponse(response WeatherResponse) string {
 	if err != nil {
 		log.Fatal("Failed to generate json", err)
 	}
+
 	return fmt.Sprintf("%s\n", string(prettyJSON))
 }

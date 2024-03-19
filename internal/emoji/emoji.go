@@ -3,7 +3,7 @@ package Emoji
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"os"
 	"regexp"
 )
@@ -29,7 +29,7 @@ func Init() error {
 	}
 	defer jsonFile.Close()
 
-	byteValue, _ := ioutil.ReadAll(jsonFile)
+	byteValue, _ := io.ReadAll(jsonFile)
 	json.Unmarshal(byteValue, &emojis)
 
 	return nil
@@ -41,11 +41,13 @@ func Search(word string) (string, error) {
 		if re.MatchString(emoji.Description) {
 			return emoji.Emoji, nil
 		}
+
 		for _, alias := range emoji.Aliases {
 			if re.MatchString(alias) {
 				return emoji.Emoji, nil
 			}
 		}
+
 		for _, tag := range emoji.Tags {
 			if re.MatchString(tag) {
 				return emoji.Emoji, nil
@@ -62,14 +64,17 @@ func SearchInCategory(category string, word string) (string, error) {
 		if emoji.Category != category {
 			continue
 		}
+
 		if re.MatchString(emoji.Description) {
 			return emoji.Emoji, nil
 		}
+
 		for _, alias := range emoji.Aliases {
 			if re.MatchString(alias) {
 				return emoji.Emoji, nil
 			}
 		}
+
 		for _, tag := range emoji.Tags {
 			if re.MatchString(tag) {
 				return emoji.Emoji, nil

@@ -3,10 +3,11 @@ package Commands
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	Telegram "jbelbo/guidoBot/telegram"
-	"log"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
 
 type JokeResponse struct {
@@ -15,24 +16,29 @@ type JokeResponse struct {
 }
 
 func GetJoke(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.MessageResponse) error {
-
 	resp, err := http.Get("https://api.chucknorris.io/jokes/random")
 	if err != nil {
 		fmt.Println("No response from request")
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
 
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal("Error while reading Open Joke response")
+		log.Error().Err(err).Msg("Error while reading Open Joke response")
+
+		return err
 	}
-	fmt.Println(string(body))
+
+	log.Debug().Msg(`GetJoke: ` + string(body))
 
 	var joke JokeResponse
 	err = json.Unmarshal(body, &joke)
 	if err != nil {
-		fmt.Println("error unmarshalling open weather response: ", err)
+		log.Error().Err(err).Msg("error unmarshalling open joke response")
+
+		return err
 	}
+
 	responseBody.Text = joke.Url + "\n" + joke.Value
 
 	return nil

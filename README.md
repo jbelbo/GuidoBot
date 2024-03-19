@@ -1,4 +1,5 @@
 # GuidoBot
+
 A simple Telegram bot
 
 ## Installation
@@ -8,13 +9,15 @@ cp .env.example .env
 ```
 
 ## Usage
+
 ```bash
 go run .
 ```
 
 ## Webhook request example
+
 ```bash
-curl --location --request GET 'localhost:4000' \
+curl --location --request GET 'localhost:3000/{API_KEY}' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "message": {
@@ -34,8 +37,8 @@ curl --location --request GET 'localhost:4000' \
 }'
 ```
 
-
-curl --location --request GET 'localhost:4000' \
+```bash
+curl --location --request GET 'localhost:3000/{API_KEY}' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "message": {
@@ -45,3 +48,4 @@ curl --location --request GET 'localhost:4000' \
         }
     }
 }'
+```

@@ -35,6 +35,7 @@ func TeamWithEmoji(team string) string {
 	if err != nil {
 		return team
 	}
+
 	return fmt.Sprintf("%s %s", team, emoji)
 }
 
@@ -51,10 +52,10 @@ func MatchesForTeam(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.Mes
 
 	collection := client.Database("worldcup").Collection("fixture")
 	filter := bson.D{
-		{"$or",
-			bson.A{
-				bson.D{{"HomeTeam", bson.D{{"$regex", regexp.QuoteMeta(team)}, {"$options", "i"}}}},
-				bson.D{{"AwayTeam", bson.D{{"$regex", regexp.QuoteMeta(team)}, {"$options", "i"}}}},
+		{Key: "$or",
+			Value: bson.A{
+				bson.D{{Key: "HomeTeam", Value: bson.D{{Key: "$regex", Value: regexp.QuoteMeta(team)}, {Key: "$options", Value: "i"}}}},
+				bson.D{{Key: "AwayTeam", Value: bson.D{{Key: "$regex", Value: regexp.QuoteMeta(team)}, {Key: "$options", Value: "i"}}}},
 			},
 		},
 	}
@@ -76,5 +77,4 @@ func MatchesForTeam(reqBody *Telegram.WebhookReqBody, responseBody *Telegram.Mes
 	responseBody.Text = out.String()
 
 	return nil
-
 }
